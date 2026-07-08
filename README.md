@@ -1,11 +1,15 @@
-# Consultor de Deuda de Patentes — Santa Fe
+# Consultor de Deuda de Patente y Multas
 
-Aplicación que consulta la **deuda de patente de un vehículo** en el portal de la
-Provincia de Santa Fe (`https://www.santafe.gov.ar/e-pt-liq-deuda/`).
+Aplicación que, a partir de la **patente de un vehículo**, consulta:
 
-Automatiza el navegador con **Playwright** (Chromium headless): completa el
-formulario, resuelve el captcha **Altcha** (proof-of-work), envía la consulta y
-extrae los datos del vehículo, avisos y las tablas de deuda.
+- **Deuda de patente** en el portal de la Provincia de Santa Fe
+  (`https://www.santafe.gov.ar/e-pt-liq-deuda/`).
+- **Multas de tránsito** en el portal de la Municipalidad de Rosario
+  (`https://www.rosario.gob.ar/gdm/`), con **descarga del PDF del recibo**.
+
+Automatiza el navegador con **Playwright** (Chromium headless): completa los
+formularios, resuelve el captcha **Altcha** (Santa Fe), sortea el reCAPTCHA v3
+(Rosario) y extrae los datos. Ambas consultas corren **en paralelo**.
 
 Incluye una **interfaz web** (Flask) y una **CLI** de línea de comandos.
 
@@ -13,7 +17,7 @@ Incluye una **interfaz web** (Flask) y una **CLI** de línea de comandos.
 
 ```
 modelo-por-patente/
-├── app.py            # App web Flask + API JSON (/api/consulta)
+├── app.py            # App web Flask + API (/api/consulta, /api/recibo)
 ├── cli.py            # Consulta desde la terminal
 ├── scraper.py        # Lógica de scraping compartida (Playwright)
 ├── requirements.txt
@@ -57,24 +61,47 @@ python app.py
 
 ```bash
 python cli.py ABC123
-python cli.py ABC123 --visible   # muestra el navegador (no headless)
 python cli.py                    # pregunta la patente por teclado
 ```
 
 ## API
 
-`GET /api/consulta?patente=ABC123` → JSON
+### `GET /api/consulta?patente=ABC123`
+
+Devuelve deuda de patente y multas en un solo JSON:
 
 ```json
 {
-  "success": true,
-  "vehicle_data": ["..."],
-  "notices": ["..."],
-  "debts": [{ "headers": ["..."], "rows": [["..."]] }]
+  "patente": {
+    "success": true,
+    "vehicle_data": ["..."],
+    "notices": ["..."],
+    "debts": [{ "headers": ["..."], "rows": [["..."]] }]
+  },
+  "multas": {
+    "success": true,
+    "libre_multas": false,
+    "fines": [
+      {
+        "acta": "...",
+        "estado": "...",
+        "detalles": { "clave": "valor" },
+        "ver_acta": "https://...",
+        "ver_recibo": "/api/recibo?patente=...&comprobante=...&tipodeuda=..."
+      }
+    ]
+  }
 }
 ```
 
-En caso de error: `{ "success": false, "error": "..." }`.
+Cada bloque trae `"success": false` con `"error"` si esa fuente falla (una puede
+fallar sin afectar a la otra).
+
+### `GET /api/recibo?patente=&comprobante=&tipodeuda=`
+
+Descarga el **PDF del recibo** de una multa (los parámetros salen del campo
+`ver_recibo` de cada multa). Responde con el archivo PDF (`Content-Type:
+application/pdf`) o un JSON de error.
 
 ## Configuración
 
@@ -85,7 +112,9 @@ En caso de error: `{ "success": false, "error": "..." }`.
 
 ## Notas
 
-- Depende de la estructura del portal público de Santa Fe; si el sitio cambia,
-  los selectores del scraper pueden requerir ajustes.
-- Uso previsto: consulta de información pública. Respetá los términos de uso del
-  portal y evitá volúmenes de consulta abusivos.
+- Depende de la estructura de los portales públicos de Santa Fe y Rosario; si
+  cambian, los selectores del scraper pueden requerir ajustes. El módulo de
+  multas usa técnicas anti-detección para el reCAPTCHA v3, más sensibles a
+  cambios del sitio.
+- Uso previsto: consulta de información pública. Respetá los términos de uso de
+  los portales y evitá volúmenes de consulta abusivos.

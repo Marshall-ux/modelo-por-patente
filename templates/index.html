@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consulta de Patente - Santa Fe</title>
+    <title>Consulta de Patente y Multas - Santa Fe</title>
     <!-- Google Fonts: Outfit -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -22,6 +22,106 @@
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --font-family: 'Outfit', sans-serif;
+        }
+
+        body.light-theme {
+            --bg-color: #f8fafc;
+            --card-bg: rgba(255, 255, 255, 0.85);
+            --card-border: rgba(0, 0, 0, 0.08);
+            --primary: #4f46e5;
+            --primary-glow: rgba(79, 70, 229, 0.15);
+            --text-main: #0f172a;
+            --text-muted: #64748b;
+        }
+
+        body.light-theme {
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0px, transparent 50%);
+        }
+
+        body.light-theme .neostar-logo {
+            filter: invert(1);
+            mix-blend-mode: normal;
+        }
+
+        body.light-theme input[type="text"] {
+            background: rgba(255, 255, 255, 0.8);
+            color: #0f172a;
+        }
+
+        body.light-theme .info-item {
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        body.light-theme .fine-card {
+            background: rgba(255, 255, 255, 0.6);
+        }
+
+        body.light-theme th {
+            background: rgba(241, 245, 249, 0.9);
+        }
+
+        body.light-theme td {
+            border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .theme-toggle-wrapper {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+        }
+
+        .theme-toggle-btn {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 30px;
+            padding: 0.5rem 1.25rem;
+            color: #f8fafc;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(47, 63, 90, 0.9);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.25);
+        }
+
+        body.light-theme .theme-toggle-btn {
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            color: #0f172a;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+
+        body.light-theme .theme-toggle-btn:hover {
+            background: #ffffff;
+            border-color: var(--primary);
+            box-shadow: 0 6px 20px rgba(79, 70, 229, 0.15);
+        }
+
+        .text-light {
+            display: none;
+        }
+
+        .text-dark {
+            display: inline-block;
+        }
+
+        body.light-theme .text-light {
+            display: inline-block;
+        }
+
+        body.light-theme .text-dark {
+            display: none;
         }
 
         * {
@@ -314,6 +414,177 @@
             color: var(--error);
         }
 
+        /* Fines Layout */
+        .fines-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .fine-card {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            box-shadow: 0 4px 15px -3px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .fine-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--error);
+        }
+
+        .fine-card.warning::before {
+            background: var(--warning);
+        }
+
+        .fine-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(239, 68, 68, 0.4);
+            box-shadow: 0 8px 25px -5px rgba(239, 68, 68, 0.15);
+        }
+
+        .fine-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 0.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .fine-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .fine-badge {
+            font-size: 0.72rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+        }
+
+        .fine-badge.warning {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fde047;
+        }
+
+        .fine-detail {
+            display: flex;
+            flex-direction: column;
+            gap: 0.15rem;
+        }
+
+        .fine-detail .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .fine-detail .value {
+            font-size: 0.95rem;
+            font-weight: 500;
+            line-height: 1.35;
+        }
+
+        .fine-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: auto;
+            padding-top: 0.75rem;
+            border-top: 1px solid var(--card-border);
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .fine-actions a {
+            text-decoration: none;
+            font-size: 0.82rem;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            transition: all 0.2s ease;
+        }
+
+        .fine-actions .link-acta {
+            color: var(--text-main);
+            border: 1px solid var(--card-border);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .fine-actions .link-acta:hover {
+            border-color: var(--primary);
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .fine-actions .btn-recibo {
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.2);
+        }
+
+        .fine-actions .btn-recibo:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        .fine-clean-box {
+            background: rgba(16, 185, 129, 0.08);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            border-radius: 12px;
+            padding: 1.25rem;
+            color: #a7f3d0;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+            width: 100%;
+            grid-column: 1 / -1;
+        }
+
+        .fine-clean-icon {
+            font-size: 1.5rem;
+            color: var(--success);
+        }
+
+        /* Error inline notice */
+        .inline-error-box {
+            background: rgba(239, 68, 68, 0.08);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 12px;
+            padding: 1.25rem;
+            color: #fca5a5;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 500;
+            width: 100%;
+            grid-column: 1 / -1;
+        }
+
         /* Tables styled */
         .table-responsive {
             overflow-x: auto;
@@ -426,7 +697,7 @@
             .print-neostar-logo {
                 height: 200px;
                 mix-blend-mode: normal !important;
-                filter: invert(1) !important; /* Converts white on black to black on white logo */
+                filter: invert(1) !important;
             }
             
             .section-title {
@@ -440,8 +711,10 @@
                 display: block !important;
             }
             .section-title button {
-                display: none !important; /* Secondary print button hidden */
+                display: none !important;
             }
+            
+            /* Grid items layout */
             .info-grid {
                 display: grid !important;
                 grid-template-columns: 1fr 1fr !important;
@@ -476,6 +749,68 @@
                 color: #b45309 !important;
                 font-size: 9pt !important;
             }
+            
+            /* Fines printed layout */
+            .fines-container {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 10px !important;
+                margin-bottom: 20px !important;
+            }
+            .fine-card {
+                background: transparent !important;
+                border: 1.5px solid #000 !important;
+                box-shadow: none !important;
+                padding: 10px !important;
+                border-radius: 6px !important;
+                page-break-inside: avoid;
+            }
+            .fine-card::before {
+                display: none;
+            }
+            .fine-actions {
+                display: none !important;
+            }
+            .fine-header {
+                border-bottom: 1.5px solid #000 !important;
+                padding-bottom: 3px !important;
+            }
+            .fine-title {
+                color: #000 !important;
+                font-size: 10pt !important;
+            }
+            .fine-badge {
+                border: 1px solid #000 !important;
+                background: transparent !important;
+                color: #000 !important;
+                font-size: 7pt !important;
+            }
+            .fine-detail .label {
+                color: #555 !important;
+                font-size: 7.5pt !important;
+            }
+            .fine-detail .value {
+                color: #000 !important;
+                font-size: 8.5pt !important;
+            }
+            .fine-clean-box {
+                background: transparent !important;
+                border: 1.5px solid #000 !important;
+                color: #000 !important;
+                padding: 10px !important;
+                border-radius: 6px !important;
+            }
+            .fine-clean-icon {
+                color: #000 !important;
+            }
+            .inline-error-box {
+                background: transparent !important;
+                border: 1.5px solid #ef4444 !important;
+                color: #ef4444 !important;
+                padding: 10px !important;
+                border-radius: 6px !important;
+            }
+            
             .table-responsive {
                 border: 1px solid #000 !important;
                 background: transparent !important;
@@ -507,26 +842,35 @@
     </style>
 </head>
 <body>
+    <script>
+        if (localStorage.getItem("theme") === "light") {
+            document.body.classList.add("light-theme");
+        }
+    </script>
 
     <div class="container">
         
         <!-- Corporate Neostar Print Header (Visible only when generating PDF/Printing) -->
         <div class="print-header">
             <div class="print-header-left">
-                <h2>Reporte de Consulta de Deuda</h2>
+                <h2>Reporte de Estado de Patente y Multas</h2>
                 <p>Fecha de emisión: <span id="print-date"></span></p>
             </div>
-            <!-- Logo with inverted colors for print (transparent background, black text) -->
             <img src="/static/logo_neostar.png" class="print-neostar-logo" alt="Neostar Logo">
         </div>
 
         <header>
             <div class="logo-container">
-                <!-- Neostar logo blended beautifully into the dark theme of the app -->
                 <img src="/static/logo_neostar.png" class="neostar-logo" alt="Neostar Logo">
             </div>
-            <h1>Consultor de Deuda de Patentes</h1>
-            <p>API - Provincia de Santa Fe</p>
+            <h1>Consultor de Deuda y Multas</h1>
+            <p>API Provincia Santa Fe | Municipalidad de Rosario</p>
+            <div class="theme-toggle-wrapper">
+                <button id="theme-toggle-btn" class="theme-toggle-btn" aria-label="Cambiar tema">
+                    <span class="theme-btn-text text-dark">🌙 Modo Noche</span>
+                    <span class="theme-btn-text text-light">☀️ Modo Día</span>
+                </button>
+            </div>
         </header>
 
         <!-- Search Card -->
@@ -564,7 +908,7 @@
             <div id="results" class="results-container">
                 
                 <!-- Vehicle Info Section -->
-                <div>
+                <div id="vehicle-section">
                     <h2 class="section-title">
                         <span>🚙 Datos del Vehículo</span>
                         <button id="print-btn" onclick="imprimirReporte()" class="btn-secondary">🖨️ Imprimir PDF</button>
@@ -574,17 +918,25 @@
                     </div>
                 </div>
 
-                <!-- Notices Section -->
+                <!-- Notices Section (Santa Fe Portal Alerts) -->
                 <div id="notices-section" style="display: none;">
-                    <h2 class="section-title"><span>Avisos de la Jurisdicción</span></h2>
+                    <h2 class="section-title"><span>Noticias de la Jurisdicción (Patente)</span></h2>
                     <div id="notices-box" class="notice-box">
                         <!-- Populated by JS -->
                     </div>
                 </div>
 
-                <!-- Debts Section -->
+                <!-- Fines Section (Rosario Portal) -->
+                <div id="fines-section" style="display: none;">
+                    <h2 class="section-title"><span>🚨 Multas de Tránsito (Rosario)</span></h2>
+                    <div id="fines-box" class="fines-container">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Debts Section (Santa Fe Portal) -->
                 <div id="debts-section">
-                    <h2 class="section-title"><span>💰 Detalle de Deuda</span></h2>
+                    <h2 class="section-title"><span>💰 Detalle de Deuda (Patente)</span></h2>
                     <div id="tables-container">
                         <!-- Populated by JS -->
                     </div>
@@ -595,18 +947,23 @@
     </div>
 
     <footer>
-        <p>Desarrollado de forma local | Conexión directa a API Santa Fe</p>
+        <p>Desarrollado de forma local | Conexión directa a API Santa Fe y Rosario GDM</p>
     </footer>
 
     <script>
+        document.getElementById("theme-toggle-btn").addEventListener("click", () => {
+            document.body.classList.toggle("light-theme");
+            localStorage.setItem("theme", document.body.classList.contains("light-theme") ? "light" : "dark");
+        });
+
         const loadingTexts = [
-            "Iniciando navegador Playwright...",
-            "Conectando al portal tributario de Santa Fe...",
-            "Completando patente en el formulario...",
-            "Marcando checkbox 'No soy un robot'...",
-            "Resolviendo Proof-of-Work del Captcha (Altcha)...",
-            "Verificando y enviando consulta...",
-            "Procesando respuesta impositiva..."
+            "Iniciando navegadores automatizados...",
+            "Conectando a los portales impositivos en paralelo...",
+            "Ingresando patente en Santa Fe y Rosario...",
+            "Resolviendo captchas y validaciones...",
+            "Calculando deuda de patentes y multas de tránsito...",
+            "Procesando respuestas del Tribunal de Faltas y API...",
+            "Formateando reporte final..."
         ];
 
         let textInterval;
@@ -663,12 +1020,13 @@
                 submitBtn.disabled = false;
                 patenteInput.disabled = false;
 
-                if (!data.success) {
-                    mostrarError(data.error || "Ocurrió un error inesperado al consultar la patente.");
+                // If BOTH scrapers failed, display a general error box
+                if (!data.patente.success && !data.multas.success) {
+                    mostrarError(`Error de Consulta:\n- Patente (Santa Fe): ${data.patente.error}\n- Multas (Rosario): ${data.multas.error}`);
                     return;
                 }
 
-                renderResults(data);
+                renderResults(data.patente, data.multas);
 
             } catch (err) {
                 stopLoadingTextSequence();
@@ -683,110 +1041,227 @@
         function mostrarError(msg) {
             const errorBox = document.getElementById("error-box");
             const errorMsg = document.getElementById("error-msg");
-            errorMsg.textContent = msg;
+            errorMsg.innerHTML = msg.replace(/\n/g, "<br>");
             errorBox.style.display = "flex";
         }
 
-        function renderResults(data) {
+        function renderResults(patenteData, multasData) {
             const results = document.getElementById("results");
+            
+            // 1. Render vehicle info and notices
             const vehicleGrid = document.getElementById("vehicle-grid");
             const noticesSection = document.getElementById("notices-section");
             const noticesBox = document.getElementById("notices-box");
-            const tablesContainer = document.getElementById("tables-container");
             
-            // Clear previous results
             vehicleGrid.innerHTML = "";
             noticesBox.innerHTML = "";
-            tablesContainer.innerHTML = "";
             
-            // Render Vehicle Info
-            if (data.vehicle_data && data.vehicle_data.length > 0) {
-                // Parse key values from label text strings like "Patente: AI212QB-06 Cuit: 27-26912308-2"
-                data.vehicle_data.forEach(text => {
-                    const parts = text.split(/ {2,}| \| /);
-                    parts.forEach(part => {
-                        if (!part.trim()) return;
-                        
-                        const colonIdx = part.indexOf(":");
-                        let labelText = "";
-                        let valText = "";
-                        
-                        if (colonIdx !== -1) {
-                            labelText = part.substring(0, colonIdx).trim();
-                            valText = part.substring(colonIdx + 1).trim();
-                        } else {
-                            labelText = "Información";
-                            valText = part.trim();
-                        }
-                        
-                        const infoItem = document.createElement("div");
-                        infoItem.className = "info-item";
-                        infoItem.innerHTML = `
-                            <div class="label">${labelText}</div>
-                            <div class="value">${valText}</div>
-                        `;
-                        vehicleGrid.appendChild(infoItem);
-                    });
-                });
-            } else {
-                vehicleGrid.innerHTML = '<div class="info-item" style="grid-column: 1/-1; text-align: center;">No se encontraron datos del vehículo.</div>';
-            }
-
-            // Render Notices
-            if (data.notices && data.notices.length > 0) {
-                noticesSection.style.display = "block";
-                data.notices.forEach(note => {
-                    const noteItem = document.createElement("div");
-                    noteItem.className = "notice-item";
-                    noteItem.textContent = note;
-                    noticesBox.appendChild(noteItem);
-                });
-            } else {
-                noticesSection.style.display = "none";
-            }
-
-            // Render Tables
-            if (data.debts && data.debts.length > 0) {
-                data.debts.forEach(tableData => {
-                    const tableDiv = document.createElement("div");
-                    tableDiv.className = "table-responsive";
-                    
-                    const table = document.createElement("table");
-                    
-                    // Headers
-                    const thead = document.createElement("thead");
-                    const headerRow = document.createElement("tr");
-                    tableData.headers.forEach(h => {
-                        const th = document.createElement("th");
-                        th.textContent = h;
-                        headerRow.appendChild(th);
-                    });
-                    thead.appendChild(headerRow);
-                    table.appendChild(thead);
-                    
-                    // Body
-                    const tbody = document.createElement("tbody");
-                    tableData.rows.forEach(rowCells => {
-                        const tr = document.createElement("tr");
-                        const isTotal = rowCells.some(cell => cell.toLowerCase().includes("total"));
-                        if (isTotal) {
-                            tr.className = "highlight-row";
-                        }
-                        
-                        rowCells.forEach(cell => {
-                            const td = document.createElement("td");
-                            td.textContent = cell;
-                            tr.appendChild(td);
+            if (patenteData.success) {
+                if (patenteData.vehicle_data && patenteData.vehicle_data.length > 0) {
+                    patenteData.vehicle_data.forEach(text => {
+                        const parts = text.split(/ {2,}| \| /);
+                        parts.forEach(part => {
+                            if (!part.trim()) return;
+                            
+                            const colonIdx = part.indexOf(":");
+                            let labelText = "";
+                            let valText = "";
+                            
+                            if (colonIdx !== -1) {
+                                labelText = part.substring(0, colonIdx).trim();
+                                valText = part.substring(colonIdx + 1).trim();
+                            } else {
+                                labelText = "Información";
+                                valText = part.trim();
+                            }
+                            
+                            const infoItem = document.createElement("div");
+                            infoItem.className = "info-item";
+                            infoItem.innerHTML = `
+                                <div class="label">${labelText}</div>
+                                <div class="value">${valText}</div>
+                            `;
+                            vehicleGrid.appendChild(infoItem);
                         });
-                        tbody.appendChild(tr);
                     });
-                    table.appendChild(tbody);
-                    
-                    tableDiv.appendChild(table);
-                    tablesContainer.appendChild(tableDiv);
-                });
+                } else {
+                    vehicleGrid.innerHTML = '<div class="info-item" style="grid-column: 1/-1; text-align: center;">No se encontraron datos del vehículo en el portal de patentes.</div>';
+                }
+
+                // Render Notices
+                if (patenteData.notices && patenteData.notices.length > 0) {
+                    noticesSection.style.display = "block";
+                    patenteData.notices.forEach(note => {
+                        const noteItem = document.createElement("div");
+                        noteItem.className = "notice-item";
+                        noteItem.textContent = note;
+                        noticesBox.appendChild(noteItem);
+                    });
+                } else {
+                    noticesSection.style.display = "none";
+                }
             } else {
-                tablesContainer.innerHTML = '<div class="info-item" style="text-align: center;">No se encontraron tablas de deudas activas.</div>';
+                // If patent search failed but fines succeeded, warn the user
+                noticesSection.style.display = "none";
+                vehicleGrid.innerHTML = `
+                    <div class="inline-error-box">
+                        <span>⚠️ Error en Consulta de Patente: ${patenteData.error}</span>
+                    </div>
+                `;
+            }
+
+            // 2. Render Fines Section (Rosario GDM)
+            const finesSection = document.getElementById("fines-section");
+            const finesBox = document.getElementById("fines-box");
+            finesBox.innerHTML = "";
+            finesSection.style.display = "block";
+
+            if (multasData.success) {
+                if (multasData.libre_multas || !multasData.fines || multasData.fines.length === 0) {
+                    // Clean record
+                    finesBox.innerHTML = `
+                        <div class="fine-clean-box">
+                            <span class="fine-clean-icon">✅</span>
+                            <span>El vehículo no registra multas de tránsito pendientes de pago en la Municipalidad de Rosario.</span>
+                        </div>
+                    `;
+                } else {
+                    // Render fine cards
+                    multasData.fines.forEach(fine => {
+                        const card = document.createElement("div");
+                        card.className = "fine-card";
+                        
+                        // Check if the state is warning or alert
+                        const estadoLow = (fine.estado || "").toLowerCase();
+                        if (estadoLow.includes("juez") || estadoLow.includes("tribunal") || estadoLow.includes("grave")) {
+                            // Leave as red card
+                        } else {
+                            card.classList.add("warning");
+                        }
+                        
+                        // Header
+                        const header = document.createElement("div");
+                        header.className = "fine-header";
+                        
+                        const title = document.createElement("span");
+                        title.className = "fine-title";
+                        title.textContent = fine.acta;
+                        
+                        const badge = document.createElement("span");
+                        badge.className = "fine-badge";
+                        if (!card.classList.contains("warning")) {
+                            badge.classList.add("danger");
+                        } else {
+                            badge.classList.add("warning");
+                        }
+                        badge.textContent = fine.estado;
+                        
+                        header.appendChild(title);
+                        header.appendChild(badge);
+                        card.appendChild(header);
+                        
+                        // Details
+                        if (fine.detalles) {
+                            for (const [key, val] of Object.entries(fine.detalles)) {
+                                if (!val.trim()) continue;
+                                const detail = document.createElement("div");
+                                detail.className = "fine-detail";
+                                detail.innerHTML = `
+                                    <span class="label">${key}</span>
+                                    <span class="value">${val}</span>
+                                `;
+                                card.appendChild(detail);
+                            }
+                        }
+                        
+                        // Actions (ver acta / ver recibo)
+                        if (fine.ver_acta || fine.ver_recibo) {
+                            const actions = document.createElement("div");
+                            actions.className = "fine-actions";
+                            
+                            if (fine.ver_acta) {
+                                const actaLink = document.createElement("a");
+                                actaLink.className = "link-acta";
+                                actaLink.href = fine.ver_acta;
+                                actaLink.target = "_blank";
+                                actaLink.innerHTML = "📄 Ver Acta";
+                                actions.appendChild(actaLink);
+                            }
+                            
+                            if (fine.ver_recibo) {
+                                const reciboLink = document.createElement("a");
+                                reciboLink.className = "btn-recibo";
+                                reciboLink.href = fine.ver_recibo;
+                                reciboLink.target = "_blank";
+                                reciboLink.innerHTML = "🧾 Ver Recibo";
+                                actions.appendChild(reciboLink);
+                            }
+                            
+                            card.appendChild(actions);
+                        }
+                        
+                        finesBox.appendChild(card);
+                    });
+                }
+            } else {
+                finesBox.innerHTML = `
+                    <div class="inline-error-box">
+                        <span>⚠️ Error en Consulta de Multas: ${multasData.error}</span>
+                    </div>
+                `;
+            }
+
+            // 3. Render Debts Section (Santa Fe)
+            const debtsSection = document.getElementById("debts-section");
+            const tablesContainer = document.getElementById("tables-container");
+            tablesContainer.innerHTML = "";
+
+            if (patenteData.success) {
+                debtsSection.style.display = "block";
+                if (patenteData.debts && patenteData.debts.length > 0) {
+                    patenteData.debts.forEach(tableData => {
+                        const tableDiv = document.createElement("div");
+                        tableDiv.className = "table-responsive";
+                        
+                        const table = document.createElement("table");
+                        
+                        // Headers
+                        const thead = document.createElement("thead");
+                        const headerRow = document.createElement("tr");
+                        tableData.headers.forEach(h => {
+                            const th = document.createElement("th");
+                            th.textContent = h;
+                            headerRow.appendChild(th);
+                        });
+                        thead.appendChild(headerRow);
+                        table.appendChild(thead);
+                        
+                        // Body
+                        const tbody = document.createElement("tbody");
+                        tableData.rows.forEach(rowCells => {
+                            const tr = document.createElement("tr");
+                            const isTotal = rowCells.some(cell => cell.toLowerCase().includes("total"));
+                            if (isTotal) {
+                                tr.className = "highlight-row";
+                            }
+                            
+                            rowCells.forEach(cell => {
+                                const td = document.createElement("td");
+                                td.textContent = cell;
+                                tr.appendChild(td);
+                            });
+                            tbody.appendChild(tr);
+                        });
+                        table.appendChild(tbody);
+                        
+                        tableDiv.appendChild(table);
+                        tablesContainer.appendChild(tableDiv);
+                    });
+                } else {
+                    tablesContainer.innerHTML = '<div class="info-item" style="text-align: center;">No se encontraron deudas activas en el portal de patentes.</div>';
+                }
+            } else {
+                debtsSection.style.display = "none";
             }
 
             // Show results container
