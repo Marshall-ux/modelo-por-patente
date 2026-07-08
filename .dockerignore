@@ -1,0 +1,14 @@
+.git
+.gitignore
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+env/
+*.png
+!static/*.png
+error_screenshot.png
+README.md
+.vscode/
+.idea/

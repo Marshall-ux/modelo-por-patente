@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Patente - Santa Fe</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(30, 41, 59, 0.45);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --primary: #6366f1;
+            --primary-glow: rgba(99, 102, 241, 0.3);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --error: #ef4444;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-family: 'Outfit', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.15) 0px, transparent 50%);
+            color: var(--text-main);
+            font-family: var(--font-family);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 2rem 1rem;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 800px;
+            margin-top: 1rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .logo-container {
+            margin-bottom: 1.5rem;
+            text-align: center;
+        }
+
+        .neostar-logo {
+            max-height: 280px;
+            mix-blend-mode: screen;
+            transition: all 0.3s ease;
+        }
+
+        header h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #a5b4fc, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.025em;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1rem;
+        }
+
+        /* Glassmorphic Card */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 16px;
+            padding: 2rem;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            font-size: 0.90rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 1rem;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            color: var(--text-main);
+            font-size: 1.2rem;
+            font-family: var(--font-family);
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px var(--primary-glow);
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            border: none;
+            border-radius: 12px;
+            padding: 1rem 2rem;
+            color: white;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #334155;
+            box-shadow: none;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* Secondary Action Button */
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid var(--card-border);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            color: var(--text-main);
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            box-shadow: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: var(--primary);
+            transform: translateY(-1px);
+        }
+
+        .btn-secondary:active {
+            transform: translateY(0);
+        }
+
+        /* Loading Animation */
+        .loading-container {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2.5rem 0;
+            gap: 1.5rem;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(99, 102, 241, 0.1);
+            border-left-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .loading-text {
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-align: center;
+            min-height: 27px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Results Elements */
+        .results-container {
+            display: none;
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 1.25rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--card-border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.5rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-item {
+            background: rgba(15, 23, 42, 0.4);
+            border: 1px solid var(--card-border);
+            border-radius: 10px;
+            padding: 1rem;
+        }
+
+        .info-item .label {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-item .value {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        /* Notice Alerts */
+        .notice-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+            border-radius: 12px;
+            padding: 1rem 1.25rem;
+            color: #fbbf24;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .notice-item {
+            font-size: 0.95rem;
+            font-weight: 500;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+        }
+
+        .notice-item::before {
+            content: "✦";
+            color: var(--warning);
+        }
+
+        /* Error Box */
+        .error-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.25);
+            border-radius: 12px;
+            padding: 1.25rem;
+            color: #fca5a5;
+            font-weight: 500;
+            display: none;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 2rem;
+        }
+
+        .error-icon {
+            font-size: 1.5rem;
+            color: var(--error);
+        }
+
+        /* Tables styled */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            background: rgba(15, 23, 42, 0.3);
+            margin-bottom: 2rem;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th {
+            background: rgba(15, 23, 42, 0.8);
+            color: var(--text-main);
+            font-weight: 600;
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        td {
+            padding: 1rem 1.25rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+            color: var(--text-muted);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            color: var(--text-main);
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .highlight-row {
+            font-weight: 600;
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        .highlight-row td {
+            color: var(--text-main);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: auto;
+            padding-top: 3rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* Hidden Print Header Elements */
+        .print-header {
+            display: none;
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            body {
+                background: white !important;
+                background-image: none !important;
+                color: black !important;
+                font-size: 11pt;
+                padding: 0;
+                display: block;
+            }
+            .container {
+                margin: 0;
+                padding: 0;
+                max-width: 100%;
+            }
+            /* Hide UI controls */
+            #search-form, #error-box, #loading, footer, .btn-secondary, header {
+                display: none !important;
+            }
+            .card {
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+            }
+            
+            /* Print Header */
+            .print-header {
+                display: flex !important;
+                align-items: center;
+                justify-content: space-between;
+                border-bottom: 2px solid #000;
+                padding-bottom: 15px;
+                margin-bottom: 25px;
+            }
+            .print-header-left h2 {
+                font-size: 18pt;
+                font-weight: 700;
+                color: #000;
+                margin-bottom: 5px;
+                letter-spacing: -0.02em;
+            }
+            .print-header-left p {
+                font-size: 9pt;
+                color: #555;
+            }
+            .print-neostar-logo {
+                height: 200px;
+                mix-blend-mode: normal !important;
+                filter: invert(1) !important; /* Converts white on black to black on white logo */
+            }
+            
+            .section-title {
+                color: black !important;
+                font-size: 12pt;
+                font-weight: 700;
+                border-bottom: 1.5px solid #000 !important;
+                margin-top: 25px;
+                margin-bottom: 15px;
+                padding-bottom: 3px;
+                display: block !important;
+            }
+            .section-title button {
+                display: none !important; /* Secondary print button hidden */
+            }
+            .info-grid {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr !important;
+                gap: 8px !important;
+                margin-bottom: 15px !important;
+            }
+            .info-item {
+                background: transparent !important;
+                border: 1px solid #ccc !important;
+                padding: 8px 12px !important;
+                border-radius: 6px !important;
+                page-break-inside: avoid;
+            }
+            .info-item .label {
+                color: #555 !important;
+                font-size: 7.5pt !important;
+            }
+            .info-item .value {
+                color: #000 !important;
+                font-size: 9.5pt !important;
+            }
+            .notice-box {
+                background: #fefaf0 !important;
+                border: 1px solid #f59e0b !important;
+                color: #b45309 !important;
+                padding: 8px 12px !important;
+                border-radius: 6px !important;
+                margin-bottom: 20px !important;
+                page-break-inside: avoid;
+            }
+            .notice-item {
+                color: #b45309 !important;
+                font-size: 9pt !important;
+            }
+            .table-responsive {
+                border: 1px solid #000 !important;
+                background: transparent !important;
+                border-radius: 6px !important;
+            }
+            table {
+                font-size: 9pt !important;
+            }
+            th {
+                background: #f1f5f9 !important;
+                color: #000 !important;
+                border-bottom: 2px solid #000 !important;
+                padding: 6px 10px !important;
+            }
+            td {
+                color: #000 !important;
+                border-bottom: 1px solid #ccc !important;
+                padding: 6px 10px !important;
+            }
+            .highlight-row {
+                background: #f8fafc !important;
+            }
+            .highlight-row td {
+                font-weight: 700 !important;
+                border-top: 1.5px solid #000 !important;
+                border-bottom: 1.5px solid #000 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Corporate Neostar Print Header (Visible only when generating PDF/Printing) -->
+        <div class="print-header">
+            <div class="print-header-left">
+                <h2>Reporte de Consulta de Deuda</h2>
+                <p>Fecha de emisión: <span id="print-date"></span></p>
+            </div>
+            <!-- Logo with inverted colors for print (transparent background, black text) -->
+            <img src="/static/logo_neostar.png" class="print-neostar-logo" alt="Neostar Logo">
+        </div>
+
+        <header>
+            <div class="logo-container">
+                <!-- Neostar logo blended beautifully into the dark theme of the app -->
+                <img src="/static/logo_neostar.png" class="neostar-logo" alt="Neostar Logo">
+            </div>
+            <h1>Consultor de Deuda de Patentes</h1>
+            <p>API - Provincia de Santa Fe</p>
+        </header>
+
+        <!-- Search Card -->
+        <div class="card">
+            <form id="search-form" onsubmit="realizarConsulta(event)">
+                <div class="form-group">
+                    <label for="patente-input">Ingrese Dominio / Patente</label>
+                    <div class="input-row">
+                        <input 
+                            type="text" 
+                            id="patente-input" 
+                            placeholder="Ej: AI212QB o AAA123" 
+                            required
+                            maxlength="8"
+                            autocomplete="off"
+                        >
+                        <button type="submit" id="submit-btn">Consultar</button>
+                    </div>
+                </div>
+            </form>
+
+            <!-- Error Box -->
+            <div id="error-box" class="error-box">
+                <span class="error-icon">⚠️</span>
+                <span id="error-msg">Ocurrió un error.</span>
+            </div>
+
+            <!-- Loading Spinner & Messages -->
+            <div id="loading" class="loading-container">
+                <div class="spinner"></div>
+                <div id="loading-text" class="loading-text">Conectando con el servidor...</div>
+            </div>
+
+            <!-- Results -->
+            <div id="results" class="results-container">
+                
+                <!-- Vehicle Info Section -->
+                <div>
+                    <h2 class="section-title">
+                        <span>🚙 Datos del Vehículo</span>
+                        <button id="print-btn" onclick="imprimirReporte()" class="btn-secondary">🖨️ Imprimir PDF</button>
+                    </h2>
+                    <div id="vehicle-grid" class="info-grid">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Notices Section -->
+                <div id="notices-section" style="display: none;">
+                    <h2 class="section-title"><span>Avisos de la Jurisdicción</span></h2>
+                    <div id="notices-box" class="notice-box">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Debts Section -->
+                <div id="debts-section">
+                    <h2 class="section-title"><span>💰 Detalle de Deuda</span></h2>
+                    <div id="tables-container">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Desarrollado de forma local | Conexión directa a API Santa Fe</p>
+    </footer>
+
+    <script>
+        const loadingTexts = [
+            "Iniciando navegador Playwright...",
+            "Conectando al portal tributario de Santa Fe...",
+            "Completando patente en el formulario...",
+            "Marcando checkbox 'No soy un robot'...",
+            "Resolviendo Proof-of-Work del Captcha (Altcha)...",
+            "Verificando y enviando consulta...",
+            "Procesando respuesta impositiva..."
+        ];
+
+        let textInterval;
+
+        function startLoadingTextSequence() {
+            let index = 0;
+            const textElement = document.getElementById("loading-text");
+            textElement.textContent = loadingTexts[0];
+            
+            textInterval = setInterval(() => {
+                index = (index + 1) % loadingTexts.length;
+                textElement.textContent = loadingTexts[index];
+            }, 3000);
+        }
+
+        function stopLoadingTextSequence() {
+            clearInterval(textInterval);
+        }
+
+        function imprimirReporte() {
+            const now = new Date();
+            const options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', second: '2-digit' };
+            document.getElementById("print-date").textContent = now.toLocaleDateString('es-AR', options);
+            window.print();
+        }
+
+        async function realizarConsulta(event) {
+            event.preventDefault();
+            
+            const patenteInput = document.getElementById("patente-input");
+            const submitBtn = document.getElementById("submit-btn");
+            const errorBox = document.getElementById("error-box");
+            const loading = document.getElementById("loading");
+            const results = document.getElementById("results");
+            
+            const patente = patenteInput.value.trim();
+            if (!patente) return;
+
+            // UI State reset
+            errorBox.style.display = "none";
+            results.style.display = "none";
+            loading.style.display = "flex";
+            submitBtn.disabled = true;
+            patenteInput.disabled = true;
+            
+            startLoadingTextSequence();
+
+            try {
+                const response = await fetch(`/api/consulta?patente=${encodeURIComponent(patente)}`);
+                const data = await response.json();
+                
+                stopLoadingTextSequence();
+                loading.style.display = "none";
+                submitBtn.disabled = false;
+                patenteInput.disabled = false;
+
+                if (!data.success) {
+                    mostrarError(data.error || "Ocurrió un error inesperado al consultar la patente.");
+                    return;
+                }
+
+                renderResults(data);
+
+            } catch (err) {
+                stopLoadingTextSequence();
+                loading.style.display = "none";
+                submitBtn.disabled = false;
+                patenteInput.disabled = false;
+                mostrarError("Error de red: No se pudo conectar con el servidor backend.");
+                console.error(err);
+            }
+        }
+
+        function mostrarError(msg) {
+            const errorBox = document.getElementById("error-box");
+            const errorMsg = document.getElementById("error-msg");
+            errorMsg.textContent = msg;
+            errorBox.style.display = "flex";
+        }
+
+        function renderResults(data) {
+            const results = document.getElementById("results");
+            const vehicleGrid = document.getElementById("vehicle-grid");
+            const noticesSection = document.getElementById("notices-section");
+            const noticesBox = document.getElementById("notices-box");
+            const tablesContainer = document.getElementById("tables-container");
+            
+            // Clear previous results
+            vehicleGrid.innerHTML = "";
+            noticesBox.innerHTML = "";
+            tablesContainer.innerHTML = "";
+            
+            // Render Vehicle Info
+            if (data.vehicle_data && data.vehicle_data.length > 0) {
+                // Parse key values from label text strings like "Patente: AI212QB-06 Cuit: 27-26912308-2"
+                data.vehicle_data.forEach(text => {
+                    const parts = text.split(/ {2,}| \| /);
+                    parts.forEach(part => {
+                        if (!part.trim()) return;
+                        
+                        const colonIdx = part.indexOf(":");
+                        let labelText = "";
+                        let valText = "";
+                        
+                        if (colonIdx !== -1) {
+                            labelText = part.substring(0, colonIdx).trim();
+                            valText = part.substring(colonIdx + 1).trim();
+                        } else {
+                            labelText = "Información";
+                            valText = part.trim();
+                        }
+                        
+                        const infoItem = document.createElement("div");
+                        infoItem.className = "info-item";
+                        infoItem.innerHTML = `
+                            <div class="label">${labelText}</div>
+                            <div class="value">${valText}</div>
+                        `;
+                        vehicleGrid.appendChild(infoItem);
+                    });
+                });
+            } else {
+                vehicleGrid.innerHTML = '<div class="info-item" style="grid-column: 1/-1; text-align: center;">No se encontraron datos del vehículo.</div>';
+            }
+
+            // Render Notices
+            if (data.notices && data.notices.length > 0) {
+                noticesSection.style.display = "block";
+                data.notices.forEach(note => {
+                    const noteItem = document.createElement("div");
+                    noteItem.className = "notice-item";
+                    noteItem.textContent = note;
+                    noticesBox.appendChild(noteItem);
+                });
+            } else {
+                noticesSection.style.display = "none";
+            }
+
+            // Render Tables
+            if (data.debts && data.debts.length > 0) {
+                data.debts.forEach(tableData => {
+                    const tableDiv = document.createElement("div");
+                    tableDiv.className = "table-responsive";
+                    
+                    const table = document.createElement("table");
+                    
+                    // Headers
+                    const thead = document.createElement("thead");
+                    const headerRow = document.createElement("tr");
+                    tableData.headers.forEach(h => {
+                        const th = document.createElement("th");
+                        th.textContent = h;
+                        headerRow.appendChild(th);
+                    });
+                    thead.appendChild(headerRow);
+                    table.appendChild(thead);
+                    
+                    // Body
+                    const tbody = document.createElement("tbody");
+                    tableData.rows.forEach(rowCells => {
+                        const tr = document.createElement("tr");
+                        const isTotal = rowCells.some(cell => cell.toLowerCase().includes("total"));
+                        if (isTotal) {
+                            tr.className = "highlight-row";
+                        }
+                        
+                        rowCells.forEach(cell => {
+                            const td = document.createElement("td");
+                            td.textContent = cell;
+                            tr.appendChild(td);
+                        });
+                        tbody.appendChild(tr);
+                    });
+                    table.appendChild(tbody);
+                    
+                    tableDiv.appendChild(table);
+                    tablesContainer.appendChild(tableDiv);
+                });
+            } else {
+                tablesContainer.innerHTML = '<div class="info-item" style="text-align: center;">No se encontraron tablas de deudas activas.</div>';
+            }
+
+            // Show results container
+            results.style.display = "block";
+        }
+    </script>
+</body>
+</html>
