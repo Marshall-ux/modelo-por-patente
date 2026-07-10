@@ -271,7 +271,7 @@ async def consultar_multas_data(patente: str) -> dict:
                             comp = urllib.parse.quote(btn_data["comprobante"])
                             td = urllib.parse.quote(btn_data["tipodeuda"])
                             ver_recibo_url = (
-                                f"/api/recibo?patente={patente}"
+                                f"/modelo-por-patente/api/recibo?patente={patente}"
                                 f"&comprobante={comp}&tipodeuda={td}"
                             )
                     except Exception:

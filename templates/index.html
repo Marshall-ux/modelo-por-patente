@@ -516,7 +516,7 @@
     <!-- Header full-width con banner de marca Neostar -->
     <header class="header">
         <div class="header__bar">
-            <img src="/static/header-neostar.png" alt="Neostar I+D - Innovación y Desarrollo" class="header__banner">
+            <img src="/modelo-por-patente/static/header-neostar.png" alt="Neostar I+D - Innovación y Desarrollo" class="header__banner">
             <span class="header__tag">Consulta vehicular</span>
         </div>
     </header>
@@ -529,7 +529,7 @@
                 <h2>Reporte de Estado de Patente y Multas</h2>
                 <p>Fecha de emisión: <span id="print-date"></span></p>
             </div>
-            <img src="/static/neostar-logo.png" class="print-neostar-logo" alt="Neostar Logo">
+            <img src="/modelo-por-patente/static/neostar-logo.png" class="print-neostar-logo" alt="Neostar Logo">
         </div>
 
         <!-- Hero -->
@@ -543,7 +543,7 @@
                     Rosario). Revisá el detalle y descargá los recibos.
                 </p>
             </div>
-            <img src="/static/robot.png" alt="Asistente Neostar" class="hero__robot">
+            <img src="/modelo-por-patente/static/robot.png" alt="Asistente Neostar" class="hero__robot">
         </section>
 
         <!-- Search Card -->
@@ -680,7 +680,7 @@
             startLoadingTextSequence();
 
             try {
-                const response = await fetch(`/api/consulta?patente=${encodeURIComponent(patente)}`);
+                const response = await fetch(`/modelo-por-patente/api/consulta?patente=${encodeURIComponent(patente)}`);
                 const data = await response.json();
 
                 stopLoadingTextSequence();
