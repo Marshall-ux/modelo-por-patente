@@ -40,7 +40,10 @@ async def _nueva_pagina(p, stealth: bool = False):
     launch_args = ["--disable-blink-features=AutomationControlled"] if stealth else []
     browser = await p.chromium.launch(headless=True, args=launch_args)
 
-    context_kwargs = {"user_agent": USER_AGENT}
+    # ignore_https_errors: necesario cuando se corre detrás de un proxy
+    # corporativo con inspección SSL, donde Chromium no confía en el
+    # certificado raíz interceptor (net::ERR_CERT_AUTHORITY_INVALID).
+    context_kwargs = {"user_agent": USER_AGENT, "ignore_https_errors": True}
     if stealth:
         context_kwargs.update(
             locale="es-AR",

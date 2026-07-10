@@ -5,9 +5,15 @@ FROM mcr.microsoft.com/playwright/python:v1.49.0-jammy
 
 WORKDIR /app
 
-# Instalar dependencias de Python primero (mejor uso de la caché de capas)
+# Instalar dependencias de Python primero (mejor uso de la caché de capas).
+# --trusted-host: evita el fallo de verificación SSL de pip cuando se
+# construye detrás de un proxy corporativo con inspección de tráfico.
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir \
+    --trusted-host pypi.org \
+    --trusted-host files.pythonhosted.org \
+    --trusted-host pypi.python.org \
+    -r requirements.txt
 
 # Copiar el resto de la aplicación
 COPY . .
