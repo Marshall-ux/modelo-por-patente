@@ -14,7 +14,7 @@ from io import BytesIO
 
 from flask import Flask, jsonify, render_template, request, send_file
 
-from scraper import consultar_todo, download_receipt_pdf_data
+from scraper import JURISDICCIONES, consultar_todo, download_receipt_pdf_data
 
 app = Flask(__name__)
 
@@ -34,14 +34,27 @@ def index():
     return render_template("index.html")
 
 
+@app.route("/api/jurisdicciones")
+def api_jurisdicciones():
+    """Lista de jurisdicciones disponibles para el selector del frontend."""
+    return jsonify(JURISDICCIONES)
+
+
 @app.route("/api/consulta")
 def api_consulta():
     patente = request.args.get("patente", "")
+    jurisdiccion = request.args.get("jurisdiccion", "santa_fe")
+
     if not patente:
         return jsonify({"success": False, "error": "Patente vacía"})
+    if jurisdiccion not in JURISDICCIONES:
+        return jsonify({
+            "success": False,
+            "error": f"Jurisdicción desconocida: {jurisdiccion}",
+        }), 400
 
     try:
-        result = _run_async(consultar_todo(patente))
+        result = _run_async(consultar_todo(patente, jurisdiccion))
         return jsonify(result)
     except Exception as e:
         return jsonify({"success": False, "error": f"Error del servidor: {str(e)}"})

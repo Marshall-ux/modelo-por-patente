@@ -1,15 +1,19 @@
 # Consultor de Deuda de Patente y Multas
 
-Aplicación que, a partir de la **patente de un vehículo**, consulta:
+Aplicación que, a partir de la **patente de un vehículo** y de la **jurisdicción
+elegida**, consulta la deuda del automotor.
 
-- **Deuda de patente** en el portal de la Provincia de Santa Fe
-  (`https://www.santafe.gov.ar/e-pt-liq-deuda/`).
-- **Multas de tránsito** en el portal de la Municipalidad de Rosario
-  (`https://www.rosario.gob.ar/gdm/`), con **descarga del PDF del recibo**.
+### Jurisdicciones soportadas
+
+| Jurisdicción | Qué consulta | Portal |
+|---|---|---|
+| **Santa Fe** | Deuda de patente + **multas de tránsito** (Rosario), con descarga del PDF del recibo | `santafe.gov.ar`, `rosario.gob.ar` |
+| **Córdoba** | Impuesto automotor (sin multas) | `rentascordoba.gob.ar` |
 
 Automatiza el navegador con **Playwright** (Chromium headless): completa los
 formularios, resuelve el captcha **Altcha** (Santa Fe), sortea el reCAPTCHA v3
-(Rosario) y extrae los datos. Ambas consultas corren **en paralelo**.
+(Rosario) y extrae los datos. En Santa Fe, deuda y multas se consultan **en
+paralelo**.
 
 Incluye una **interfaz web** (Flask) y una **CLI** de línea de comandos.
 
@@ -60,18 +64,25 @@ python app.py
 ### CLI
 
 ```bash
-python cli.py ABC123
-python cli.py                    # pregunta la patente por teclado
+python cli.py ABC123                          # Santa Fe (por defecto)
+python cli.py ABC123 --jurisdiccion cordoba   # Córdoba
+python cli.py                                 # pregunta la patente por teclado
 ```
 
 ## API
 
-### `GET /api/consulta?patente=ABC123`
+### `GET /api/jurisdicciones`
 
-Devuelve deuda de patente y multas en un solo JSON:
+Devuelve las jurisdicciones disponibles (para poblar el selector).
+
+### `GET /api/consulta?patente=ABC123&jurisdiccion=santa_fe`
+
+`jurisdiccion` acepta `santa_fe` (default) o `cordoba`. Devuelve deuda y multas
+en un solo JSON:
 
 ```json
 {
+  "jurisdiccion": "santa_fe",
   "patente": {
     "success": true,
     "vehicle_data": ["..."],

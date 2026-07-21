@@ -1,14 +1,15 @@
-"""Consulta de deuda de patente (Santa Fe) y multas (Rosario) desde la terminal.
+"""Consulta de deuda de patente y multas desde la terminal.
 
 Uso:
-    python cli.py ABC123
-    python cli.py                    # pregunta la patente por teclado
+    python cli.py ABC123                     # Santa Fe (por defecto)
+    python cli.py ABC123 --jurisdiccion cordoba
+    python cli.py                            # pregunta la patente por teclado
 """
 
 import asyncio
 import sys
 
-from scraper import consultar_todo
+from scraper import JURISDICCIONES, consultar_todo
 
 
 def print_table(headers, rows):
@@ -30,9 +31,10 @@ def print_table(headers, rows):
         print("  " + " | ".join(f"{str(v).ljust(widths[i])}" for i, v in enumerate(row)))
 
 
-def mostrar_patente(result: dict):
+def mostrar_patente(result: dict, jurisdiccion_nombre: str = ""):
     print("\n" + "=" * 50)
-    print("  DEUDA DE PATENTE (Santa Fe)")
+    sufijo = f" ({jurisdiccion_nombre})" if jurisdiccion_nombre else ""
+    print(f"  DEUDA DE PATENTE{sufijo}")
     print("=" * 50)
     if not result.get("success"):
         print(f"[-] {result.get('error', 'Error desconocido.')}")
@@ -78,13 +80,29 @@ def mostrar_multas(result: dict):
 
 def main():
     args = sys.argv[1:]
+
+    jurisdiccion = "santa_fe"
+    if "--jurisdiccion" in args:
+        i = args.index("--jurisdiccion")
+        if i + 1 < len(args):
+            jurisdiccion = args[i + 1]
+            del args[i:i + 2]
+
+    if jurisdiccion not in JURISDICCIONES:
+        print(f"[-] Jurisdicción desconocida: {jurisdiccion}")
+        print(f"    Opciones: {', '.join(JURISDICCIONES)}")
+        return
+
     patente = args[0] if args else input("Ingrese la patente del vehículo: ")
 
-    print(f"[+] Consultando patente: {patente} (patente + multas en paralelo)...")
-    result = asyncio.run(consultar_todo(patente))
+    nombre = JURISDICCIONES[jurisdiccion]["nombre"]
+    print(f"[+] Consultando patente {patente} en {nombre}...")
+    result = asyncio.run(consultar_todo(patente, jurisdiccion))
 
-    mostrar_patente(result.get("patente", {}))
-    mostrar_multas(result.get("multas", {}))
+    mostrar_patente(result.get("patente", {}), nombre)
+    multas = result.get("multas", {})
+    if not multas.get("no_aplica"):
+        mostrar_multas(multas)
 
 
 if __name__ == "__main__":

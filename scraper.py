@@ -1,10 +1,10 @@
-"""Lógica de scraping compartida.
+"""Lógica de scraping compartida, organizada por jurisdicción.
 
-Consulta dos fuentes por patente de vehículo:
-  - Deuda de patente en el portal de la Provincia de Santa Fe
-    (https://www.santafe.gov.ar/e-pt-liq-deuda/), resolviendo el captcha Altcha.
-  - Multas de tránsito en el portal de la Municipalidad de Rosario
-    (https://www.rosario.gob.ar/gdm/), incluyendo la descarga del PDF del recibo.
+Jurisdicciones soportadas (ver JURISDICCIONES):
+  - santa_fe: deuda de patente en el portal de la Provincia de Santa Fe
+    (captcha Altcha) + multas de tránsito de la Municipalidad de Rosario
+    (reCAPTCHA v3), incluyendo descarga del PDF del recibo.
+  - cordoba: impuesto automotor en Rentas Córdoba (sin captcha).
 
 Todas las funciones de consulta devuelven un dict con la clave "success".
 La app web (app.py) y la CLI (cli.py) reutilizan este módulo.
@@ -22,6 +22,22 @@ from playwright.async_api import async_playwright
 SANTA_FE_URL = "https://www.santafe.gov.ar/e-pt-liq-deuda/"
 ROSARIO_URL = "https://www.rosario.gob.ar/gdm/patente.do?accion=ir"
 ROSARIO_BASE = "https://www.rosario.gob.ar"
+CORDOBA_URL = "https://www.rentascordoba.gob.ar/emision/ver-y-pagar/automotor"
+
+# Jurisdicciones disponibles para el selector del frontend.
+# "multas" indica si la jurisdicción tiene además consulta de multas.
+JURISDICCIONES = {
+    "santa_fe": {
+        "nombre": "Santa Fe",
+        "detalle": "Deuda de patente (Provincia) + multas de tránsito (Rosario)",
+        "multas": True,
+    },
+    "cordoba": {
+        "nombre": "Córdoba",
+        "detalle": "Impuesto automotor (Rentas Córdoba)",
+        "multas": False,
+    },
+}
 
 USER_AGENT = (
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
@@ -309,13 +325,151 @@ async def consultar_multas_data(patente: str) -> dict:
             await browser.close()
 
 
-async def consultar_todo(patente: str) -> dict:
-    """Consulta deuda de patente (Santa Fe) y multas (Rosario) en paralelo."""
+# ---------------------------------------------------------------------------
+# Córdoba: impuesto automotor (Rentas Córdoba)
+# ---------------------------------------------------------------------------
+async def consultar_cordoba_data(patente: str) -> dict:
+    """Consulta el impuesto automotor en el portal de Rentas Córdoba.
+
+    El portal es una SPA (Angular) sin ids estables: el campo se ubica por su
+    atributo formcontrolname y el botón por su texto visible.
+    """
+    patente = normalizar_patente(patente)
+    if not patente:
+        return {"success": False, "error": "La patente ingresada está vacía."}
+
+    async with async_playwright() as p:
+        browser, page = await _nueva_pagina(p, stealth=True)
+        try:
+            await page.goto(CORDOBA_URL, timeout=45000, wait_until="domcontentloaded")
+            # La SPA tarda en hidratar el formulario
+            await page.wait_for_timeout(5000)
+
+            campo = page.locator('input[formcontrolname="dataInput"]')
+            if await campo.count() == 0:
+                campo = page.locator("input[type=text]:visible").first
+            await campo.wait_for(timeout=20000)
+            await campo.fill(patente)
+
+            await page.click("button:has-text('Consultar')")
+            await page.wait_for_timeout(9000)
+
+            # Error de validación / dominio inexistente
+            body_text = re.sub(r"\s+", " ", await page.inner_text("body"))
+            for marca in ("El dato es incorrecto", "no se encontr", "no existe"):
+                if marca.lower() in body_text.lower():
+                    return {
+                        "success": False,
+                        "error": (
+                            "Rentas Córdoba no reconoce el dominio "
+                            f"{patente}. Verificá que el vehículo esté radicado "
+                            "en Córdoba."
+                        ),
+                    }
+
+            # El portal usa clases propias (no tablas) para el resumen del
+            # vehículo: .object-title (dominio), .kuib-badge (estado) y
+            # .object-subtitle (marca/modelo).
+            datos = await page.evaluate(
+                """() => {
+                    const txt = (sel) => {
+                        const e = document.querySelector(sel);
+                        return e ? (e.innerText || '').replace(/\\s+/g, ' ').trim() : '';
+                    };
+                    // Avisos: débito automático, beneficios, etc.
+                    // Se deduplica por una clave sin espacios para evitar
+                    // variantes como "30%" vs "30 %".
+                    const notices = [];
+                    const vistos = new Set();
+                    document.querySelectorAll(
+                        '.card-taxes-status__title, .card__title, .card__body'
+                    ).forEach(e => {
+                        const t = (e.innerText || '').replace(/\\s+/g, ' ').trim();
+                        const clave = t.replace(/\\s+/g, '').toLowerCase();
+                        if (t && t.length < 160 && !vistos.has(clave)) {
+                            vistos.add(clave);
+                            notices.push(t);
+                        }
+                    });
+                    // Importes visibles (cuotas / deuda)
+                    const montos = [];
+                    document.querySelectorAll('*').forEach(e => {
+                        if (e.children.length) return;
+                        const t = (e.innerText || '').trim();
+                        if (/\\$\\s?[\\d.,]+/.test(t) && t.length < 60 && !montos.includes(t)) {
+                            montos.push(t);
+                        }
+                    });
+                    return {
+                        dominio: txt('.object-title'),
+                        estado: txt('.kuib-badge'),
+                        vehiculo: txt('.object-subtitle'),
+                        notices: notices.slice(0, 6),
+                        montos: montos.slice(0, 30)
+                    };
+                }"""
+            )
+
+            vehicle_data = []
+            if datos.get("dominio"):
+                vehicle_data.append(f"Dominio: {datos['dominio']}")
+            if datos.get("vehiculo"):
+                vehicle_data.append(f"Vehículo: {datos['vehiculo']}")
+            if datos.get("estado"):
+                vehicle_data.append(f"Estado: {datos['estado']}")
+            vehicle_data.append("Jurisdicción: Córdoba (Rentas Córdoba)")
+
+            # Si el portal muestra importes, armamos una tabla de deuda con
+            # ellos; si el vehículo está al día no hay ninguno.
+            debts = []
+            montos = datos.get("montos") or []
+            if montos:
+                debts.append({
+                    "headers": ["Concepto / Importe"],
+                    "rows": [[m] for m in montos],
+                })
+
+            return {
+                "success": True,
+                "vehicle_data": vehicle_data,
+                "notices": datos.get("notices") or [],
+                "debts": debts,
+            }
+
+        except Exception as e:
+            return {
+                "success": False,
+                "error": f"Error de automatización en Rentas Córdoba: {str(e)}",
+            }
+        finally:
+            await browser.close()
+
+
+async def consultar_todo(patente: str, jurisdiccion: str = "santa_fe") -> dict:
+    """Consulta la jurisdicción indicada y devuelve {patente, multas}.
+
+    - santa_fe: deuda provincial + multas de Rosario (en paralelo).
+    - cordoba: impuesto automotor; la jurisdicción no ofrece multas.
+    """
+    if jurisdiccion == "cordoba":
+        res_patente = await consultar_cordoba_data(patente)
+        return {
+            "jurisdiccion": "cordoba",
+            "patente": res_patente,
+            "multas": {
+                "success": True,
+                "no_aplica": True,
+                "fines": [],
+                "libre_multas": False,
+            },
+        }
+
+    # Por defecto: Santa Fe (+ multas de Rosario)
     res_patente, res_multas = await asyncio.gather(
         consultar_patente_data(patente),
         consultar_multas_data(patente),
     )
-    return {"patente": res_patente, "multas": res_multas}
+    return {"jurisdiccion": "santa_fe", "patente": res_patente, "multas": res_multas}
 
 
 # ---------------------------------------------------------------------------
